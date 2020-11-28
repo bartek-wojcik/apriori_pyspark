@@ -25,21 +25,31 @@ data = lines.map(line_to_list)
 groups = data.flatMap(session_to_groups).countByValue()
 occurrences = {k: v for k, v in groups.items() if v >= 100}
 
-rules = {}
+rules_2 = {}
+rules_3 = {}
 for group, value in occurrences.items():
     if len(group) == 2:
         X, Y = group
-        rules[(X, Y)] = value / occurrences[X]
-        rules[(Y, X)] = value / occurrences[Y]
+        rules_2[(X, Y)] = value / occurrences[X]
+        rules_2[(Y, X)] = value / occurrences[Y]
     elif len(group) == 3:
         X, Y, Z = group
-        rules[(X, Y, Z)] = value / occurrences[(X, Y)]
-        rules[(X, Z, Y)] = value / occurrences[(X, Z)]
-        rules[(Y, Z, X)] = value / occurrences[(Y, Z)]
-
-rules = {k: v for k, v in sorted(rules.items(), key=lambda item: (-item[1], item[0]))}
-with open('output.csv', 'w') as file:
-    for rule, confidence in rules.items():
-        file.write(f'{rule} {confidence}\n')
+        rules_3[(X, Y, Z)] = value / occurrences[(X, Y)]
+        rules_3[(X, Z, Y)] = value / occurrences[(X, Z)]
+        rules_3[(Y, Z, X)] = value / occurrences[(Y, Z)]
 
 
+def sort_rules(rules):
+    return {k: v for k, v in sorted(rules.items(), key=lambda item: (-item[1], item[0]))}
+
+
+def write_rules_to_file(rules, filename):
+    with open(filename + '.csv', 'w') as file:
+        for rule, confidence in rules.items():
+            file.write(f'{rule} {confidence}\n')
+
+
+rules_2 = sort_rules(rules_2)
+rules_3 = sort_rules(rules_3)
+write_rules_to_file(rules_2, '2')
+write_rules_to_file(rules_3, '3')
